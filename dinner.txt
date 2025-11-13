@@ -1,0 +1,46 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <unistd.h>
+
+using namespace std;
+
+const int N = 5;  // number of philosophers
+mutex chopstick[N];  // one mutex per chopstick
+
+void philosopher(int id) {
+    while(true) {
+        cout << "Philosopher " << id << " is thinking\n";
+        sleep(1);
+
+        int left = id;
+        int right = (id + 1) % N;
+
+        // Avoid deadlock by always picking lower-numbered chopstick first
+        int first  = min(left, right);
+        int second = max(left, right);
+
+        chopstick[first].lock();
+        chopstick[second].lock();
+
+        cout << "Philosopher " << id << " is eating\n";
+        sleep(1);
+
+        chopstick[second].unlock();
+        chopstick[first].unlock();
+
+        cout << "Philosopher " << id << " finished eating\n";
+    }
+}
+
+int main() {
+    thread t[N];
+
+    for(int i=0; i<N; i++)
+        t[i] = thread(philosopher, i);
+
+    for(int i=0; i<N; i++)
+        t[i].join();
+
+    return 0;
+}
