@@ -1,0 +1,22 @@
+#include <iostream>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+using namespace std;
+
+int main() {
+    key_t key = ftok("shmfile", 65);       // same key as server
+
+    int shmid = shmget(key, 1024, 0666);   // get shared memory
+
+    char *str = (char*) shmat(shmid, NULL, 0);  // attach
+
+    cout << "Message read from shared memory:\n";
+    cout << str << endl;
+
+    shmdt(str);                             // detach
+
+    // optional: server usually deletes shared memory
+    // shmctl(shmid, IPC_RMID, NULL);
+
+    return 0;
+}
