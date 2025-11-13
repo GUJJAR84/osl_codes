@@ -1,0 +1,31 @@
+#include <iostream>
+#include <fstream>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+using namespace std;
+
+int main() {
+    const char *fifo1 = "fifo1";
+
+    // create FIFO
+    mkfifo(fifo1, 0666);
+
+    int fd;
+    char text[500];
+
+    cout << "Enter text (type END to stop):\n";
+
+    while (true) {
+        cin.getline(text, 500);
+
+        if (string(text) == "END") break;
+
+        // write to fifo1
+        fd = open(fifo1, O_WRONLY);
+        write(fd, text, 500);
+        close(fd);
+    }
+
+    return 0;
+}

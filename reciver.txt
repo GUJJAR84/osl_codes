@@ -1,0 +1,46 @@
+#include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+using namespace std;
+
+int main() {
+    const char *fifo1 = "fifo1";
+
+    mkfifo(fifo1, 0666);
+
+    int fd;
+    char text[500];
+
+    cout << "Receiver started... waiting for messages\n";
+
+    while (true) {
+        fd = open(fifo1, O_RDONLY);
+        read(fd, text, 500);
+        close(fd);
+
+        if (string(text) == "END")
+            break;
+
+        int chars = 0, words = 0, lines = 1;
+
+        for (int i = 0; text[i] != '\0'; i++) {
+            chars++;
+
+            if (text[i] == ' ' || text[i] == '\t')
+                words++;
+
+            if (text[i] == '\n')
+                lines++;
+        }
+
+        words++; // last word
+
+        cout << "\nReceived: " << text << endl;
+        cout << "Characters: " << chars << endl;
+        cout << "Words: " << words << endl;
+        cout << "Lines: " << lines << endl;
+    }
+
+    return 0;
+}
